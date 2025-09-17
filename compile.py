@@ -1,3 +1,7 @@
+
+from compiler.functions import analyze_functions
+
+
 def compileCode(output, code_area, tk):
     # 1 Revisar elementos grandes 
         # funciones
@@ -12,6 +16,8 @@ def compileCode(output, code_area, tk):
     output.insert(tk.END, f"Compiling...\n{code}\n")
     output.insert(tk.END, "Compilation complete. Testing enable_input...")
     
+    analysis = analyze_functions(code)
+    print(analysis)
     # Para probar, habilitar input después de 2 segundos
     output.after(2000, lambda: enable_input(output, tk))
 
@@ -74,10 +80,10 @@ def enable_input(output, tk):
         # Buscar la última línea que contiene "Enter command: "
         user_input = ""
         for line in reversed(lines):
-            #if "Enter command: " in line:
+            if "Enter command: " in line:
                 # Extraer solo la parte después de "Enter command: "
-                #user_input = line.split("Enter command: ", 1)[1]
-            user_input = line
+                user_input = line.split("Enter command: ", 1)[1]
+            #user_input = line
             break
         # Procesar el comando
         process_command(user_input, output, tk)
