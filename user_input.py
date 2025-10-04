@@ -24,7 +24,7 @@ def get_user_input(output, tk):
         except:
             pass
         start_position = output.index(tk.END)
-        output.insert(tk.END, "\nEnter command: ")
+        output.insert(tk.END, "\n")
         input_start = output.index(tk.END)
 
         def handle_enter(event):
@@ -35,7 +35,14 @@ def get_user_input(output, tk):
                 if "Enter command: " in line:
                     user_command = line.split("Enter command: ", 1)[1]
                     break
-            process_and_set(user_command, output, tk)
+            lines = all_content.splitlines()
+            if len(lines) >= 1:
+                lastLine = lines[-1]
+                print("input["+lastLine+"]")
+            else:
+                print("Short output")
+                lastLine = ""
+            process_and_set(lastLine, output, tk)
             block_output(output, tk)
             return "break"
 
