@@ -44,6 +44,7 @@ def get_user_input(output, tk):
                 lastLine = ""
             process_and_set(lastLine, output, tk)
             block_output(output, tk)
+            output.see(tk.END)
             return "break"
 
         def validate_position(event):
@@ -60,10 +61,22 @@ def get_user_input(output, tk):
                 return "break"
             return None
 
+        def handle_click(event):
+            """Siempre posiciona el cursor al final, sin importar dónde haga click"""
+            output.focus_set()
+            output.mark_set(tk.INSERT, tk.END)
+            output.see(tk.END)
+            print("click")
+            return "break"  # Bloquear el comportamiento normal del click
+
         output.bind('<Return>', handle_enter)
         output.bind('<KeyPress>', validate_position)
         output.bind('<BackSpace>', validate_backspace)
         output.bind('<Delete>', validate_backspace)
+        output.bind('<Button-1>', handle_click)  # Click izquierdo
+        output.bind('<Button-2>', handle_click)  # Click medio (si existe)
+        output.bind('<Button-3>', handle_click)  # Click derecho
+        output.focus_set()
         output.mark_set(tk.INSERT, tk.END)
         output.see(tk.END)
 

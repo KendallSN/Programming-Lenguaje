@@ -1,6 +1,5 @@
 import re
 
-
 def extract_functions(code):
     """
     Extrae funciones con la estructura: funcion nombre(parametros):tipo{ contenido }
@@ -121,6 +120,5 @@ def analyze_functions(code):
 
 #
 
-def findFunctions(){
-    
-}
+def findFunctions(code):
+    return null
