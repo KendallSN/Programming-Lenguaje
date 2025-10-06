@@ -61,13 +61,45 @@ tk.Button(button_frame, text="COMPILAR", command=lambda: compileCode(output,code
 tk.Button(button_frame, text="EJECUTAR", command=lambda: executeCode(output,code_area,tk), width=10).pack(side=tk.LEFT, padx=2)
 
 # Initial code
-initial_code = '''funcion segunda():numero{
-    imprimir("hola");
-    retornar 1;
+initial_code = '''funcion suma(entero a, entero b):entero{
+    resultado = a + b;
+    retornar resultado;
+}
+
+funcion mostrarMensaje(texto mensaje){
+    imprimir(mensaje);
 }
 
 funcion principal(){
-    imprimir(segunda(););
+    imprimir("Ingrese el primer número:");
+    num1 = leer;
+    imprimir("Ingrese el segundo número:");
+    num2 = leer;
+    total = suma(num1; num2;);
+    mostrarMensaje("El resultado de la suma es:");
+    imprimir(total);
+    
+    si (total == 10){
+        imprimir("El total es diez");
+    }
+    sino si (total > 10){
+        imprimir("El total es mayor que diez");
+    }
+    sino {
+        imprimir("El total es menor que diez");
+    }
+    
+    cuando (total){
+        caso 5:
+            imprimir("El total es cinco");
+            terminar;
+        caso 10:
+            imprimir("El total es diez (switch)");
+            terminar;
+        defecto:
+            imprimir("Valor no esperado");
+            terminar;
+    }
 }
 '''
 
