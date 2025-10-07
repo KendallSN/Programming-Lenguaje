@@ -17,7 +17,6 @@ def compileCode(output, code_area, tk):
     output.config(state=tk.NORMAL)
     output.delete("1.0", tk.END) # Limpiar el output
     #output.insert(tk.END, f"Compiling...\n{code}\n")
-    output.insert(tk.END, f"Compiling...\n")
     #output.insert(tk.END, "Compilation complete. Testing enable_input...")
     
     #analysis = analyze_functions(code)
@@ -30,7 +29,7 @@ def compileCode(output, code_area, tk):
         output.insert(tk.END, f"Error: Llaves desbalanceadas. '{{':, '}}':\n")
         return 
     lines = content.split('\n')
-    numberLine = 0
+    numberLine = 1
 
     auxContent = content
     _stack_open_braces = []
@@ -86,11 +85,16 @@ def compileCode(output, code_area, tk):
                     _pos_last_close_brace = _pos_close_brace+1
                     if(len(_stack_open_braces_2)==1):
                         auxtemp = int(_stack_open_braces_2.pop())
-                        _function_braces_2.append([content[_pos_word:auxtemp],auxtemp,_pos_close_brace])
+                        _function_braces_2.append([content[_pos_word:auxtemp],'',['',''],auxtemp,_pos_close_brace,[]])
                         _inside_function = False
                     else:
                         _not_function_braces_2.append([int(_stack_open_braces_2.pop()),_pos_close_brace])
-                numberLine = numberLine + 1
+        numberLine = numberLine + 1
+    if _inside_function:
+        output.insert(tk.END, f"Error:Todas las funciones deben tener llaves. \n")
+        return
+
+    output.insert(tk.END, f"Compiling...\n")
 
     for element in _not_function_braces:
         print("not funcion braces",element)
@@ -100,7 +104,18 @@ def compileCode(output, code_area, tk):
     for element in _not_function_braces_2:
         print("not funcion braces 2 ",element)
     for element in _function_braces_2:
+        #_word_before_parenthesis = element[0].split(' ').filter
+        _first_space_header = element[0].find(' ')
+        _first_open_parenthesis = element[0].find('(')
+        if(_first_space_header == -1):
+            output.insert(tk.END, f"Error: Separe el nombre de la funcion con un espacio despues de la palabra funcion. \n")
+            return
+        _before_paramethers_ = (element[0])[0:element[0].find('(')]
+        _words = [w for w in _before_paramethers_.split(' ') if w.strip()]
+
+        element[1] = (element[0])[_first_space_header:_first_open_parenthesis]
         print(" funcion braces 2 ",element)
+        print(_words)
     get_user_input(output, tk)
     print("test")
     return
