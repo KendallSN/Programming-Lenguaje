@@ -111,11 +111,19 @@ def compileCode(output, code_area, tk):
             output.insert(tk.END, f"Error: Separe el nombre de la funcion con un espacio despues de la palabra funcion. \n")
             return
         _before_paramethers_ = (element[0])[0:element[0].find('(')]
-        _words = [w for w in _before_paramethers_.split(' ') if w.strip()]
+        _words_before_paramethers_ = [w for w in _before_paramethers_.split(' ') if w.strip()]
 
         element[1] = (element[0])[_first_space_header:_first_open_parenthesis]
         print(" funcion braces 2 ",element)
-        print(_words)
+        print(_words_before_paramethers_)
+        #Revizar que _words_before_paramethers_ solo sea funcion y nombre
+        #Revizar que nombre sea valido
+        #Obtener los parametros ()
+        #Revizar que los parametros sean [Tipo, Nombre]
+        #Dividir el contenido de la función según estructuras [si, cuando, for, while, sino, etc...] usando ; y {}
+        #Revizar que exista la función principal
+        #Iniciar a hacer las cosas según las estructuras en el orden dentro de principal
+        
     get_user_input(output, tk)
     print("test")
     return
