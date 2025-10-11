@@ -2,7 +2,14 @@
 from compiler.functions import analyze_functions
 from user_input import get_user_input
 
+def fillTypeTable():
+    return [
+        [["funcion",[]],["si",[]],["cuando",[]]],
+        []
+    ]
+
 def compileCode(output, code_area, tk):
+    type_table = fillTypeTable()
     # 1 Revisar elementos grandes 
         # Funciones 
             # reconocer funciones (Palabra reservada y nombre)
@@ -30,30 +37,14 @@ def compileCode(output, code_area, tk):
         return 
     lines = content.split('\n')
     numberLine = 1
-
-    auxContent = content
-    _stack_open_braces = []
-    _stack_close_braces = []
-    _not_function_braces = []
-    _function_braces = []
+    
     _pos_last_open_brace = 0
     _pos_last_close_brace = 0
     _pos_end_last_function = 0
     _inside_function = False
 
-
-    for idx, char in enumerate(content):
-        if char == '{':
-            _stack_open_braces.append(idx)
-        if char == '}':
-            if(len(_stack_open_braces)==0):
-                output.insert(tk.END, f"Error: Simbolo '}}' sin '{{' correspondiente.")
-                return
-            print("count", len(_stack_open_braces))
-            if(len(_stack_open_braces)==1):
-                _function_braces.append([int(_stack_open_braces.pop()), idx])
-            else:
-                _not_function_braces.append([int(_stack_open_braces.pop()), idx])
+    # Recorrer un string char por char con indice
+    #for idx, char in enumerate(content):
 
     _stack_open_braces_2 = []
     _not_function_braces_2 = []
@@ -96,34 +87,52 @@ def compileCode(output, code_area, tk):
 
     output.insert(tk.END, f"Compiling...\n")
 
-    for element in _not_function_braces:
-        print("not funcion braces",element)
-    for element in _function_braces:
-        print("funcion braces",element)
-
     for element in _not_function_braces_2:
         print("not funcion braces 2 ",element)
     for element in _function_braces_2:
-        #_word_before_parenthesis = element[0].split(' ').filter
+        # 
         _first_space_header = element[0].find(' ')
-        _first_open_parenthesis = element[0].find('(')
         if(_first_space_header == -1):
             output.insert(tk.END, f"Error: Separe el nombre de la funcion con un espacio despues de la palabra funcion. \n")
             return
         _before_paramethers_ = (element[0])[0:element[0].find('(')]
-        _words_before_paramethers_ = [w for w in _before_paramethers_.split(' ') if w.strip()]
+        _words_before_paramethers = [w for w in _before_paramethers_.split(' ') if w.strip()]
 
-        element[1] = (element[0])[_first_space_header:_first_open_parenthesis]
-        print(" funcion braces 2 ",element)
-        print(_words_before_paramethers_)
         #Revizar que _words_before_paramethers_ solo sea funcion y nombre
-        #Revizar que nombre sea valido
+        if(len(_words_before_paramethers)!=2):
+            output.insert(tk.END, f'Error: La función unicamente debe tener tipo y nombre antes de los parentesis ( ). \n')
+            return
+        else:#Revizar que nombre sea valido
+            if(_words_before_paramethers[0]!="funcion"):
+                output.insert(tk.END, f'Error: La función debe ser definida con la palabra funcion. \n')
+                return
+            elif(not validMethodName(_words_before_paramethers[1],type_table, output, tk)):
+                output.insert(tk.END, f'Error: Nombre de funcion invalida. \n')
+                return
+            else:
+                element[1] = _words_before_paramethers[1]
+                type_table[1].append([_words_before_paramethers[1],[]])
         #Obtener los parametros ()
         #Revizar que los parametros sean [Tipo, Nombre]
         #Dividir el contenido de la función según estructuras [si, cuando, for, while, sino, etc...] usando ; y {}
         #Revizar que exista la función principal
         #Iniciar a hacer las cosas según las estructuras en el orden dentro de principal
-        
+        #🖨️ Imprimir informacion para revisiones
+        print(" funcion braces 2 ",element)
+        print(_words_before_paramethers, len(_words_before_paramethers))
     get_user_input(output, tk)
     print("test")
     return
+
+def validMethodName( _name, type_table, output, tk):
+    #Revizar que el nombre que se quiera usar no sea una palabra restringida
+    for element in type_table[0]:
+        if(element[0]==_name):
+            output.insert(tk.END, f'Un identificador no puede ser una palabra restringida. \n')
+            return False
+    #Revizar que el nombre que se quiera usar no sea un nombre ya utilizado
+    for element in type_table[1]:
+        if(element[0]==_name):
+            output.insert(tk.END, f'Un mismo identificador esta siendo usado multiples veces. \n')
+            return False
+    return True
