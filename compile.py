@@ -5,7 +5,8 @@ from user_input import get_user_input
 def fillTypeTable():
     return [
         [["funcion",[]],["si",[]],["cuando",[]]],
-        []
+        [],
+        ["entero","flotante","booleano","caracter","texto"]
     ]
 
 def compileCode(output, code_area, tk):
@@ -76,7 +77,7 @@ def compileCode(output, code_area, tk):
                     _pos_last_close_brace = _pos_close_brace+1
                     if(len(_stack_open_braces_2)==1):
                         auxtemp = int(_stack_open_braces_2.pop())
-                        _function_braces_2.append([content[_pos_word:auxtemp],'',['',''],auxtemp,_pos_close_brace,[]])
+                        _function_braces_2.append([content[_pos_word:auxtemp],'',[],auxtemp,_pos_close_brace,[]])
                         _inside_function = False
                     else:
                         _not_function_braces_2.append([int(_stack_open_braces_2.pop()),_pos_close_brace])
@@ -95,31 +96,62 @@ def compileCode(output, code_area, tk):
         if(_first_space_header == -1):
             output.insert(tk.END, f"Error: Separe el nombre de la funcion con un espacio despues de la palabra funcion. \n")
             return
-        _before_paramethers_ = (element[0])[0:element[0].find('(')]
-        _words_before_paramethers = [w for w in _before_paramethers_.split(' ') if w.strip()]
+        _before_parameters_ = (element[0])[0:element[0].find('(')]
+        _words_before_parameters = [w for w in _before_parameters_.split(' ') if w.strip()]
 
-        #Revizar que _words_before_paramethers_ solo sea funcion y nombre
-        if(len(_words_before_paramethers)!=2):
-            output.insert(tk.END, f'Error: La función unicamente debe tener tipo y nombre antes de los parentesis ( ). \n')
+        #Revizar que _words_before_parameters_ solo sea funcion y nombre
+        if(len(_words_before_parameters)!=2):
+            output.insert(tk.END, f"Error: La función unicamente debe tener tipo y nombre antes de los parentesis ( ). \n")
             return
         else:#Revizar que nombre sea valido
-            if(_words_before_paramethers[0]!="funcion"):
-                output.insert(tk.END, f'Error: La función debe ser definida con la palabra funcion. \n')
+            if(_words_before_parameters[0]!="funcion"):
+                output.insert(tk.END, f"Error: La función debe ser definida con la palabra funcion. \n")
                 return
-            elif(not validMethodName(_words_before_paramethers[1],type_table, output, tk)):
-                output.insert(tk.END, f'Error: Nombre de funcion invalida. \n')
+            elif(not validMethodName(_words_before_parameters[1],type_table, output, tk)):
+                output.insert(tk.END, f"Error: Nombre de funcion invalida. \n")
                 return
             else:
-                element[1] = _words_before_paramethers[1]
-                type_table[1].append([_words_before_paramethers[1],[]])
+                element[1] = _words_before_parameters[1]
+                type_table[1].append([_words_before_parameters[1],[]])
         #Obtener los parametros ()
-        #Revizar que los parametros sean [Tipo, Nombre]
+        if (not (element[0].count('(')==1) or not (element[0].count(')')==1)):
+            output.insert(tk.END, f"Error: Funcion '{element[1]}' con parentesis mal usados. \n")
+            return
+        _open_parenthesis = element[0].find('(')
+        _close_parenthesis = element[0].find(')')
+        _parentheses_content = (element[0])[_open_parenthesis+1:_close_parenthesis]
+        if(not _parentheses_content.find(',')== -1):
+            _divided_parameters= _parentheses_content.split(',')
+            #Revizar que los parametros sean [Tipo, Nombre]
+            parameter_type= ""
+            for parameter in _divided_parameters:
+                divided_parameter = parameter.split(' ')
+                divided_parameter = [p for p in parameter.split(' ') if p.strip()]
+                print("divided_parameter", divided_parameter)
+                #Revizar que para parametro solo sean dos piezas
+                if(not len(divided_parameter) == 2):
+                    output.insert(tk.END, f"Error: Funcion '{element[1]}'. Los parametros deben ser [<tipo> <identificador>]. \n")
+                    return
+                #Revizar que el tipo sea valido
+                if divided_parameter[0] not in type_table[2]:
+                    output.insert(tk.END, f"Error: Funcion '{element[1]}'. Tipo de los parametros mal definidos. \n")
+                    return
+                #Revizar que el nombre del parametro este disponible
+                for existing_parameter in element[2]:
+                    if(existing_parameter[1] == divided_parameter[1]):
+                        output.insert(tk.END, f"Error: Funcion '{element[1]}'. Nombre de parametro '{existing_parameter[1]}' repetido. \n")
+                        return
+                #Si cumple todo se agrega a la lista de parametros
+                element[2].append([divided_parameter[0],divided_parameter[1]])
+        else:
+            print
+
         #Dividir el contenido de la función según estructuras [si, cuando, for, while, sino, etc...] usando ; y {}
         #Revizar que exista la función principal
         #Iniciar a hacer las cosas según las estructuras en el orden dentro de principal
         #🖨️ Imprimir informacion para revisiones
         print(" funcion braces 2 ",element)
-        print(_words_before_paramethers, len(_words_before_paramethers))
+        print(_words_before_parameters, len(_words_before_parameters))
     get_user_input(output, tk)
     print("test")
     return
