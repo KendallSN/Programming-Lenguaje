@@ -61,7 +61,6 @@ def compileCode(output, code_area, tk):
                     _pos_word = content.find(word, _pos_end_last_function)
                     _pos_close_brace = content.find('}', _pos_word) 
                     _pos_end_last_function = _pos_close_brace
-                    print(f"Posición de '{word}' en content: {_pos_word}")
                 elif not _inside_function:
                     if(word == "funcion"):
                         output.insert(tk.END, f"Error: Linea '{numberLine}' No se permite declarar funciones dentro de otras funciones. \n")
@@ -87,9 +86,6 @@ def compileCode(output, code_area, tk):
         return
 
     output.insert(tk.END, f"Compiling...\n")
-
-    for element in _not_function_braces_2:
-        print("not funcion braces 2 ",element)
     for element in _function_braces_2:
         # 
         _first_space_header = element[0].find(' ')
@@ -120,14 +116,17 @@ def compileCode(output, code_area, tk):
         _open_parenthesis = element[0].find('(')
         _close_parenthesis = element[0].find(')')
         _parentheses_content = (element[0])[_open_parenthesis+1:_close_parenthesis]
-        if(not _parentheses_content.find(',')== -1):
-            _divided_parameters= _parentheses_content.split(',')
+        # Revizar si tiene parametros
+        if _parentheses_content.strip():
+            #Revizar si tiene multiples parametros
+            if(not _parentheses_content.find(',')== -1):
+                _divided_parameters= _parentheses_content.split(',')
+            else:
+                _divided_parameters = [_parentheses_content]
             #Revizar que los parametros sean [Tipo, Nombre]
-            parameter_type= ""
             for parameter in _divided_parameters:
                 divided_parameter = parameter.split(' ')
                 divided_parameter = [p for p in parameter.split(' ') if p.strip()]
-                print("divided_parameter", divided_parameter)
                 #Revizar que para parametro solo sean dos piezas
                 if(not len(divided_parameter) == 2):
                     output.insert(tk.END, f"Error: Funcion '{element[1]}'. Los parametros deben ser [<tipo> <identificador>]. \n")
@@ -143,15 +142,36 @@ def compileCode(output, code_area, tk):
                         return
                 #Si cumple todo se agrega a la lista de parametros
                 element[2].append([divided_parameter[0],divided_parameter[1]])
-        else:
-            print
-
+        # Dividir contenido por limitadores
+        function_content = content[element[3]+1:element[4]]
+        divided_function_content = []
+        end_line = function_content.find(';')
+        start_code_section = function_content.find('{')
+        last_cut = 0
+        _internal_not_function_braces =[]
+        findBraces(_internal_not_function_braces, function_content)
+        while ( not (end_line == -1 and start_code_section == -1)):
+            if((end_line<start_code_section or start_code_section == -1) and end_line != -1):
+                functional_piece = function_content[last_cut:end_line]
+                last_cut = end_line+1
+            else:
+                end_code_section = 0
+                for braces in _internal_not_function_braces:
+                    if(braces[0]==start_code_section):
+                        end_code_section = braces[1]
+                functional_piece = function_content[last_cut:end_code_section+1]
+                last_cut = end_code_section+1
+            divided_function_content.append(functional_piece)
+            end_line = function_content.find(';',last_cut)
+            start_code_section = function_content.find('{',last_cut)
+        element[5].append(divided_function_content)
         #Dividir el contenido de la función según estructuras [si, cuando, for, while, sino, etc...] usando ; y {}
+        # Identificando las distintas partes dentro de una funcion
+        
         #Revizar que exista la función principal
         #Iniciar a hacer las cosas según las estructuras en el orden dentro de principal
         #🖨️ Imprimir informacion para revisiones
         print(" funcion braces 2 ",element)
-        print(_words_before_parameters, len(_words_before_parameters))
     get_user_input(output, tk)
     print("test")
     return
@@ -168,3 +188,12 @@ def validMethodName( _name, type_table, output, tk):
             output.insert(tk.END, f'Un mismo identificador esta siendo usado multiples veces. \n')
             return False
     return True
+
+def findBraces(_internal_not_function_braces, content):
+    open_braces = []
+    for idx, char in enumerate(content):
+        if(char == '{'):
+            open_braces.append(idx)
+        elif(char == '}'):
+            _internal_not_function_braces.append([open_braces.pop(),idx])
+    return

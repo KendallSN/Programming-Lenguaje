@@ -72,10 +72,10 @@ funcion mostrarMensaje(texto mensaje){
 
 funcion principal(){
     imprimir("Ingrese el primer número:");
-    num1 = leer;
+    texto num1 = leer;
     imprimir("Ingrese el segundo número:");
-    num2 = leer;
-    total = suma(num1; num2;);
+    texto num2 = leer;
+    entero total = suma(num1, num2);
     mostrarMensaje("El resultado de la suma es:");
     imprimir(total);
     
