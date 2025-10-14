@@ -4,7 +4,7 @@ from user_input import get_user_input
 
 def fillTypeTable():
     return [
-        [["funcion",[]],["si",[]],["cuando",[]]],
+        ["funcion","si","sino","sinosi","cuando","para","mientras","imprimir","leer","retornar"],
         [],
         ["entero","flotante","booleano","caracter","texto"]
     ]
@@ -76,7 +76,7 @@ def compileCode(output, code_area, tk):
                     _pos_last_close_brace = _pos_close_brace+1
                     if(len(_stack_open_braces_2)==1):
                         auxtemp = int(_stack_open_braces_2.pop())
-                        _function_braces_2.append([content[_pos_word:auxtemp],'',[],auxtemp,_pos_close_brace,[]])
+                        _function_braces_2.append([content[_pos_word:auxtemp],'',[],auxtemp,_pos_close_brace,[],[]])
                         _inside_function = False
                     else:
                         _not_function_braces_2.append([int(_stack_open_braces_2.pop()),_pos_close_brace])
@@ -109,6 +109,15 @@ def compileCode(output, code_area, tk):
             else:
                 element[1] = _words_before_parameters[1]
                 type_table[1].append([_words_before_parameters[1],[]])
+        #Revizar y guardar tipo de la funcion
+        _doublepoints = element[0].find(':')
+        if(_doublepoints!= -1 and validMethodType((element[0])[_doublepoints+1:len(element[0])], type_table)):
+            element[5]=(element[0])[_doublepoints+1:len(element[0])]
+        elif(_doublepoints == -1):
+            element[5]=''
+        else:
+            output.insert(tk.END, f"Error: Funcion '{element[1]}' tipo de funcion incorrecto. \n")
+            return
         #Obtener los parametros ()
         if (not (element[0].count('(')==1) or not (element[0].count(')')==1)):
             output.insert(tk.END, f"Error: Funcion '{element[1]}' con parentesis mal usados. \n")
@@ -125,7 +134,6 @@ def compileCode(output, code_area, tk):
                 _divided_parameters = [_parentheses_content]
             #Revizar que los parametros sean [Tipo, Nombre]
             for parameter in _divided_parameters:
-                divided_parameter = parameter.split(' ')
                 divided_parameter = [p for p in parameter.split(' ') if p.strip()]
                 #Revizar que para parametro solo sean dos piezas
                 if(not len(divided_parameter) == 2):
@@ -164,10 +172,11 @@ def compileCode(output, code_area, tk):
             divided_function_content.append(functional_piece)
             end_line = function_content.find(';',last_cut)
             start_code_section = function_content.find('{',last_cut)
-        element[5].append(divided_function_content)
+        parse_function_content(divided_function_content,element, type_table)
+        
+        #element[6].append(divided_function_content)
         #Dividir el contenido de la función según estructuras [si, cuando, for, while, sino, etc...] usando ; y {}
         # Identificando las distintas partes dentro de una funcion
-        
         #Revizar que exista la función principal
         #Iniciar a hacer las cosas según las estructuras en el orden dentro de principal
         #🖨️ Imprimir informacion para revisiones
@@ -176,10 +185,27 @@ def compileCode(output, code_area, tk):
     print("test")
     return
 
+def parse_function_content(divided_function_content, element, type_table):
+    for function_section in divided_function_content:
+        function_section_divided = [fsp for fsp in function_section.split(' ') if fsp.strip()]
+
+        first_word = (function_section_divided[0].split('(')[0] 
+                        if '(' in function_section_divided[0] 
+                        else function_section_divided[0])
+        # En caso de que sea una declaracion de variable
+        if(first_word in type_table[2]):
+            element[6].append(first_word)
+        # En caso de que sea una funcion
+        elif(first_word in type_table[0]):
+            element[6].append(first_word)
+            print("function_section_divided[0]",first_word)
+
+        #print(f"funcion {element[1]}: ", function_section_divided)
+    
 def validMethodName( _name, type_table, output, tk):
     #Revizar que el nombre que se quiera usar no sea una palabra restringida
     for element in type_table[0]:
-        if(element[0]==_name):
+        if(element==_name):
             output.insert(tk.END, f'Un identificador no puede ser una palabra restringida. \n')
             return False
     #Revizar que el nombre que se quiera usar no sea un nombre ya utilizado
@@ -188,6 +214,15 @@ def validMethodName( _name, type_table, output, tk):
             output.insert(tk.END, f'Un mismo identificador esta siendo usado multiples veces. \n')
             return False
     return True
+
+def validMethodType(type, type_table):
+    print("type",type)
+    if not type.strip():
+        return True
+    for element in type_table[2]:
+        if element == type:
+            return True
+    return False
 
 def findBraces(_internal_not_function_braces, content):
     open_braces = []

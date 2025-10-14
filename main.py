@@ -62,7 +62,7 @@ tk.Button(button_frame, text="EJECUTAR", command=lambda: executeCode(output,code
 
 # Initial code
 initial_code = '''funcion suma(entero a, entero b):entero{
-    resultado = a + b;
+    entero resultado = a + b;
     retornar resultado;
 }
 
@@ -82,7 +82,7 @@ funcion principal(){
     si (total == 10){
         imprimir("El total es diez");
     }
-    sino si (total > 10){
+    sinosi (total > 10){
         imprimir("El total es mayor que diez");
     }
     sino {
